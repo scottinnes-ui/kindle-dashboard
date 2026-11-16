@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "name": "Dashboard",
+      "priority": 0,
+      "items": [
+        {
+          "name": "Test: show one frame (20 s)",
+          "priority": 1,
+          "action": "once.sh",
+          "exitmenu": true
+        },
+        {
+          "name": "Test HTTPS download",
+          "priority": 2,
+          "action": "nettest.sh",
+          "exitmenu": true
+        },
+        {
+          "name": "Start dashboard",
+          "priority": 3,
+          "action": "start.sh",
+          "exitmenu": true
+        },
+        {
+          "name": "Stop dashboard",
+          "priority": 4,
+          "action": "stop.sh",
+          "exitmenu": true
+        },
+        {
+          "name": "Key test (find button codes)",
+          "priority": 5,
+          "action": "keytest.sh",
+          "exitmenu": true
+        }
+      ]
+    }
+  ]
+}
