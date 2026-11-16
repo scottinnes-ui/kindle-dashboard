@@ -1,0 +1,7 @@
+yaml
+      - name: Render both screens
+        run: |
+          mkdir site
+          python kindle-dashboard/server/dashboard.py --once site/today.png --strict
+          python kindle-dashboard/server/dashboard.py --once site/10d.png --view 10d --strict
+          echo '<!doctype html><img src="today.png" width="300"> <img src="10d.png" width="300">' > site/index.html
