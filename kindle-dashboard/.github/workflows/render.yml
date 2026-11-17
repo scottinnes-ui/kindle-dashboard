@@ -22,11 +22,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+            - name: Restore weather cache
+        uses: actions/cache@v4
+        with:
+          path: kindle-dashboard/server/.weather-cache.json
+          key: weather-cache-${{ github.run_id }}
+          restore-keys: |
+            weather-cache-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install pillow
       - name: Render both screens
+            - name: Save weather cache
+        uses: actions/cache/save@v4
+        with:
+          path: kindle-dashboard/server/.weather-cache.json
+          key: weather-cache-${{ github.run_id }}
         run: |
           mkdir site
           python server/dashboard.py --once site/today.png --strict
