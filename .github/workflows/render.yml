@@ -19,8 +19,8 @@ cancel-in-progress: true
 jobs:
 build:
 runs-on: ubuntu-latest
-steps:
-- uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
   - name: Restore weather cache
     uses: actions/cache/restore@v4
