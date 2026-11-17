@@ -1,64 +1,64 @@
 name: Render Kindle dashboard
 
 on:
-schedule:
-- cron: "*/30 * * * *"
-workflow_dispatch:
-push:
-branches: [main]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
 
 permissions:
-contents: read
-pages: write
-id-token: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-group: pages
-cancel-in-progress: true
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-  - name: Restore weather cache
-    uses: actions/cache/restore@v4
-    with:
-      path: kindle-dashboard/server/.weather-cache.json
-      key: weather-cache-${{ github.run_id }}
-      restore-keys: |
-        weather-cache-
+      - name: Restore weather cache
+        uses: actions/cache/restore@v4
+        with:
+          path: kindle-dashboard/server/.weather-cache.json
+          key: weather-cache-${{ github.run_id }}
+          restore-keys: |
+            weather-cache-
 
-  - uses: actions/setup-python@v5
-    with:
-      python-version: "3.12"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-  - run: pip install pillow
+      - run: pip install pillow
 
-  - name: Render both screens
-    run: |
-      mkdir site
-      python kindle-dashboard/server/dashboard.py --once site/today.png
-      python kindle-dashboard/server/dashboard.py --once site/10d.png --view 10d
-      echo '<!doctype html><img src="today.png" width="300"> <img src="10d.png" width="300">' > site/index.html
+      - name: Render both screens
+        run: |
+          mkdir site
+          python kindle-dashboard/server/dashboard.py --once site/today.png
+          python kindle-dashboard/server/dashboard.py --once site/10d.png --view 10d
+          echo '<!doctype html><img src="today.png" width="300"> <img src="10d.png" width="300">' > site/index.html
 
-  - name: Save weather cache
-    uses: actions/cache/save@v4
-    with:
-      path: kindle-dashboard/server/.weather-cache.json
-      key: weather-cache-${{ github.run_id }}
+      - name: Save weather cache
+        uses: actions/cache/save@v4
+        with:
+          path: kindle-dashboard/server/.weather-cache.json
+          key: weather-cache-${{ github.run_id }}
 
-  - uses: actions/upload-pages-artifact@v3
-    with:
-      path: site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
 
-deploy:
-needs: build
-runs-on: ubuntu-latest
-environment:
-name: github-pages
-url: ${{ steps.deployment.outputs.page_url }}
-steps:
-- id: deployment
-uses: actions/deploy-pages@v4
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
