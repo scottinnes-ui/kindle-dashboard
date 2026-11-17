@@ -241,11 +241,21 @@ _weather = {"data": None, "fetched": 0.0}
 _lock = threading.Lock()
 
 
-def http_json(url, timeout=15):
+def http_json(url, timeout=25, attempts=3):
     req = urllib.request.Request(url, headers={"User-Agent": "kindle-dashboard/1.0"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.load(r)
+    last_error = None
 
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.load(r)
+        except (OSError, ValueError) as e:
+            last_error = e
+            if attempt + 1 < attempts:
+                time.sleep(3 * (attempt + 1))
+
+    raise last_error
+    
 
 def get_weather(demo=False):
     """Returns (forecast dict or None, fetched epoch seconds)."""
