@@ -261,12 +261,39 @@ def get_weather(demo=False):
     """Returns (forecast dict or None, fetched epoch seconds)."""
     if demo:
         return demo_weather(), time.time()
+
+    cache_file = os.path.join(HERE, ".weather-cache.json")
+
     with _lock:
+        if _weather["data"] is None:
+            try:
+                with open(cache_file, "r", encoding="utf-8") as fh:
+                    cached = json.load(fh)
+                _weather.update(
+                    data=cached["data"],
+                    fetched=cached["fetched"]
+                )
+                print("loaded cached weather", file=sys.stderr)
+            except (OSError, ValueError, KeyError, TypeError):
+                pass
+
         if _weather["data"] is None or time.time() - _weather["fetched"] > WEATHER_CACHE_S:
             try:
-                _weather.update(data=http_json(FORECAST_URL), fetched=time.time())
+                data = http_json(FORECAST_URL)
+                fetched = time.time()
+                _weather.update(data=data, fetched=fetched)
+
+                try:
+                    temp_file = cache_file + ".tmp"
+                    with open(temp_file, "w", encoding="utf-8") as fh:
+                        json.dump({"data": data, "fetched": fetched}, fh)
+                    os.replace(temp_file, cache_file)
+                except OSError as e:
+                    print("weather cache save failed:", e, file=sys.stderr)
+
             except (OSError, ValueError) as e:
                 print("weather fetch failed:", e, file=sys.stderr)
+
         return _weather["data"], _weather["fetched"]
 
 
